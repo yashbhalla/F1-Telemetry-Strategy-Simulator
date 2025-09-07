@@ -1,15 +1,16 @@
-import numpy as np
-
-COMPOUNDS = {"SOFT": 0, "MED": 1, "HARD": 2}
-
-
+# sim_tyres.py
 class TyreModel:
     def __init__(self, params):
+        """
+        params example:
+        {
+          "SOFT": {"base": 75.0, "k": 0.08},  # seconds
+          "MED":  {"base": 76.0, "k": 0.05},
+          "HARD": {"base": 77.0, "k": 0.03}
+        }
+        """
         self.params = params
 
-    def lap_time(self, compound, tyre_life, fuel_mass):
+    def lap_time(self, compound, tyre_life):
         p = self.params[compound]
-        lt = p["base"] + p["k"]*tyre_life - 0.04*fuel_mass
-        if tyre_life > p.get("cliff_at", 10**9):
-            lt += p.get("cliff_penalty", 0.0) * (tyre_life - p["cliff_at"] + 1)
-        return lt
+        return p["base"] + p["k"] * tyre_life

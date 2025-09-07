@@ -1,31 +1,24 @@
-import numpy as np
-from sim.tyres import TyreModel
-from sim.sc_models import sample_sc_events, sc_effect
+from sim_tyres import TyreModel
+from sim_strategy import simulate_plan
 
+# Toy tyre performance assumptions
+params = {
+    "SOFT": {"base": 75.0, "k": 0.08},
+    "MED":  {"base": 76.0, "k": 0.05},
+    "HARD": {"base": 77.0, "k": 0.03}
+}
+tyre_model = TyreModel(params)
 
-def simulate_plan(race_laps, start_compound, plan, tyre_model: TyreModel,
-                  base_pit_loss=21.0, fuel_start=100.0, sc_laps=None):
-    plan_idx = 0
-    curr_comp = start_compound
-    tyre_life = 1
-    fuel = fuel_start
-    total_time = 0.0
-    p_stops = []
-    sc_laps = set(sc_laps or [])
+race_laps = 78  # Monaco GP length
 
-    for lap in range(1, race_laps+1):
-        # pit stop?
-        if plan_idx < len(plan) and lap == plan[plan_idx][0]:
-            under_sc = lap in sc_laps or (lap-1) in sc_laps
-            loss = sc_effect(base_pit_loss, under_sc)
-            total_time += loss
-            curr_comp = plan[plan_idx][1]
-            tyre_life = 1
-            p_stops.append((lap, curr_comp, loss))
-            plan_idx += 1
+# 1-stop: Start SOFT, pit lap 25 → HARD
+plan1 = [(25, "HARD")]
+t1 = simulate_plan(race_laps, "SOFT", plan1, tyre_model)
 
-        # lap time
-        total_time += tyre_model.lap_time(curr_comp, tyre_life, fuel)
-        tyre_life += 1
-        fuel = max(0.0, fuel - (fuel_start / race_laps))
-    return total_time, p_stops
+# 2-stop: Start SOFT, pit lap 18 → MED, pit lap 50 → HARD
+plan2 = [(18, "MED"), (50, "HARD")]
+t2 = simulate_plan(race_laps, "SOFT", plan2, tyre_model)
+
+print(f"1-stop SOFT→HARD: {t1:.1f} sec")
+print(f"2-stop SOFT→MED→HARD: {t2:.1f} sec")
+print("Best strategy:", "1-stop" if t1 < t2 else "2-stop")
