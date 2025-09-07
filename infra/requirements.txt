@@ -1,0 +1,10 @@
+fastf1
+pandas
+numpy
+matplotlib
+plotly
+streamlit
+sqlalchemy
+psycopg2-binary
+ortools
+scipy
