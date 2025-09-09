@@ -1,5 +1,5 @@
-from sim_tyres import TyreModel
-from sim_strategy import simulate_plan
+from tyres import TyreModel
+from strategy import simulate_plan
 
 # Toy tyre performance assumptions
 params = {
