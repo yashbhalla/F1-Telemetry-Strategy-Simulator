@@ -201,10 +201,6 @@ total_time, stints = simulate_plan(race_laps, start_compound, pit_plan, tyre_mod
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
 - [FastF1](https://github.com/theOehrly/Fast-F1) for F1 data access
@@ -212,13 +208,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Plotly](https://plotly.com/) for interactive visualizations
 - Formula 1 for the amazing sport and data
 
-## 📞 Support
-
-For questions, issues, or contributions, please:
-- Open an issue on GitHub
-- Check the documentation in the `notebooks/` directory
-- Review the code examples in each module
-
 ---
 
-**Built with ❤️ for F1 strategy analysis**
+**Built with ❤️ for F1 by Yash Bhalla**
