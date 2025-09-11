@@ -1,6 +1,6 @@
 import itertools
 import numpy as np
-from sim.strategy import simulate_plan
+from .strategy import simulate_plan
 
 
 def brute_force_best(race_laps, start_comp, compounds, tyre_model):
