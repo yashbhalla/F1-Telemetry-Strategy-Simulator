@@ -1,8 +1,16 @@
-from plotly.subplots import make_subplots
-import plotly.graph_objects as go
-import plotly.express as px
+import setup_path
+
+import os
+import re
+import sys
+from pathlib import Path
+
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import streamlit as st
+
 from telemetry.ingest import load_session, driver_laps
 from sim.optimiser import brute_force_best
 from sim.tyres import TyreModel, get_default_tire_params
@@ -10,15 +18,29 @@ from sim.weather import WeatherModel, get_default_weather_conditions
 from sim.sc_models import SafetyCarModel
 from sim.strategy import simulate_plan
 from db.database import get_database_manager
-import sys
-from pathlib import Path
 
-# --- Ensure project root is on sys.path ---
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
 
-# --- Now imports will work ---
+# -------------------- Race Lists --------------------
+RACES_BY_YEAR = {
+    2022: [
+        "Bahrain", "Saudi Arabia", "Australia", "Emilia Romagna", "Miami",
+        "Spain", "Monaco", "Azerbaijan", "Canada", "Great Britain", "Austria",
+        "France", "Hungary", "Belgium", "Netherlands", "Italy", "Singapore",
+        "Japan", "United States", "Mexico", "Brazil", "Abu Dhabi"
+    ],
+    2023: [
+        "Bahrain", "Saudi Arabia", "Australia", "Azerbaijan", "Miami", "Monaco",
+        "Spain", "Canada", "Austria", "Great Britain", "Hungary", "Belgium",
+        "Netherlands", "Italy", "Singapore", "Japan", "Qatar", "United States",
+        "Mexico", "Brazil", "Las Vegas", "Abu Dhabi"
+    ],
+    2024: [
+        "Bahrain", "Saudi Arabia", "Australia", "Japan", "China", "Miami",
+        "Emilia Romagna", "Monaco", "Canada", "Spain", "Austria", "Great Britain",
+        "Hungary", "Belgium", "Netherlands", "Italy", "Azerbaijan", "Singapore",
+        "United States", "Mexico", "Brazil", "Las Vegas", "Qatar", "Abu Dhabi"
+    ],
+}
 
 
 # Page configuration
@@ -28,20 +50,23 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("F1 Telemetry & Strategy Lab")
+st.title("🏎️ F1 Telemetry & Strategy Lab")
 st.markdown("---")
 
 # Sidebar for configuration
 st.sidebar.header("Race Configuration")
 
 # Session selection
-col1, col2, col3 = st.sidebar.columns(3)
+col1, col2 = st.sidebar.columns([1, 2])
+
 with col1:
-    year = st.selectbox("Year", [2022, 2023, 2024])
+    year = st.selectbox("Year", list(RACES_BY_YEAR.keys()),
+                        index=2)  # default 2024
 with col2:
-    gp = st.text_input("Grand Prix", "Monaco")
-with col3:
-    ses = st.selectbox("Session", ["R", "Q", "FP1"])
+    gp = st.selectbox("Grand Prix", RACES_BY_YEAR[year])
+
+ses = st.sidebar.selectbox("Session", ["R", "Q", "FP1"])
+
 
 # Weather configuration
 st.sidebar.subheader("Weather Conditions")
@@ -67,12 +92,12 @@ sc_model = SafetyCarModel()
 enable_sc = st.sidebar.checkbox("Enable Safety Car Simulation", True)
 
 # Main content
-if st.button("Load Session & Optimize Strategy", type="primary"):
+if st.button("🚀 Load Session & Optimize Strategy", type="primary"):
     with st.spinner("Loading session data..."):
         try:
             session = load_session(year, gp, ses)
             st.success(
-                f"Loaded {gp} {year} {ses} - {session.total_laps} laps")
+                f"✅ Loaded {gp} {year} {ses} - {session.total_laps} laps")
 
             # Get tire parameters
             tire_params = get_default_tire_params()
@@ -97,7 +122,7 @@ if st.button("Load Session & Optimize Strategy", type="primary"):
                 )
 
             # Display results
-            st.header("Strategy Analysis")
+            st.header("📊 Strategy Analysis")
 
             col1, col2, col3 = st.columns(3)
             with col1:
@@ -109,7 +134,7 @@ if st.button("Load Session & Optimize Strategy", type="primary"):
                 st.metric("Pit Stops", len(best_plan))
 
             # Strategy details
-            st.subheader("Optimal Strategy")
+            st.subheader("🏁 Optimal Strategy")
             if best_plan:
                 strategy_text = f"Start: SOFT"
                 for i, (lap, compound) in enumerate(best_plan):
@@ -169,7 +194,7 @@ if st.button("Load Session & Optimize Strategy", type="primary"):
 
                 # Weather forecast
                 if weather_forecast:
-                    st.subheader("Weather Forecast")
+                    st.subheader("🌤️ Weather Forecast")
 
                     weather_df = pd.DataFrame(weather_forecast)
 
@@ -220,13 +245,13 @@ if st.button("Load Session & Optimize Strategy", type="primary"):
 
                 # Safety car events
                 if sc_events:
-                    st.subheader("Safety Car Events")
+                    st.subheader("🚨 Safety Car Events")
                     for event in sc_events:
                         st.info(f"Safety Car: Laps {event['start_lap']}-{event['end_lap']} "
                                 f"({event['duration']} laps)")
 
                 # Strategy comparison
-                st.subheader("Strategy Comparison")
+                st.subheader("📈 Strategy Comparison")
 
                 # Test different strategies
                 strategies = [
@@ -250,18 +275,41 @@ if st.button("Load Session & Optimize Strategy", type="primary"):
                 st.dataframe(comparison_df, use_container_width=True)
 
                 # Bar chart comparison
+                comparison_df = comparison_df[comparison_df['Strategy']
+                                              != "Optimal Strategy"]
+
                 fig_comparison = px.bar(
                     comparison_df,
                     x='Strategy',
-                    y='Total Time (s)',
-                    title='Strategy Time Comparison',
-                    color='Total Time (s)',
-                    color_continuous_scale='RdYlGn_r'
+                    y='Time vs Optimal',
+                    title='Strategy Gap vs Optimal',
+                    color='Time vs Optimal',
+                    color_continuous_scale='RdYlGn_r',
+                    text='Time vs Optimal'
                 )
+
+                # Clean up layout
+                fig_comparison.update_layout(
+                    yaxis_title="Time Loss vs Optimal (s)",
+                    xaxis_title="Strategy",
+                    uniformtext_minsize=8,
+                    uniformtext_mode='hide'
+                )
+
+                # Add baseline at 0 (optimal strategy)
+                fig_comparison.add_hline(
+                    y=0,
+                    line_dash="dash",
+                    line_color="white",
+                    annotation_text="Optimal",
+                    annotation_position="bottom right"
+                )
+
+                # adjust ratios for width balance
                 st.plotly_chart(fig_comparison, use_container_width=True)
 
         except Exception as e:
-            st.error(f"Error loading session: {str(e)}")
+            st.error(f"❌Error loading session: {str(e)}")
             st.exception(e)
 
 # Database integration section
@@ -272,7 +320,7 @@ if st.sidebar.button("View Saved Strategies"):
         db = get_database_manager()
         strategies = db.get_best_strategies(10)
         if not strategies.empty:
-            st.subheader("Best Saved Strategies")
+            st.subheader("🏆 Best Saved Strategies")
             st.dataframe(strategies[['year', 'grand_prix', 'start_compound',
                                      'total_time_s', 'created_at']],
                          use_container_width=True)

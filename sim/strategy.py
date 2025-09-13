@@ -2,19 +2,6 @@ from .tyres import TyreModel
 
 
 def simulate_plan(race_laps, start_compound, pit_plan, tyre_model, pit_loss=20.0):
-    """
-    Simulate a race strategy and return total time and detailed results.
-
-    Args:
-        race_laps (int): Total number of laps in the race
-        start_compound (str): Starting tire compound ("SOFT", "MED", "HARD")
-        pit_plan (list): List of (lap_number, new_compound) tuples for pit stops
-        tyre_model (TyreModel): Tire degradation model
-        pit_loss (float): Time lost in pit stop (seconds)
-
-    Returns:
-        tuple: (total_time_seconds, stint_details)
-    """
     stints = []
     current_lap = 1
     current_compound = start_compound
