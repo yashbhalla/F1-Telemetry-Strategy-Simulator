@@ -65,8 +65,16 @@ with col1:
 with col2:
     gp = st.selectbox("Grand Prix", RACES_BY_YEAR[year])
 
-ses = st.sidebar.selectbox("Session", ["R", "Q", "FP1"])
+ses = st.sidebar.selectbox("Session", ["Race", "Qualifying", "FP1"])
 
+# If Race session is selected, add a Start Position dropdown
+start_position = None
+if ses == "Race":
+    start_position = st.sidebar.selectbox(
+        "Start Grid Position",
+        list(range(1, 21)),  # 1–20 grid slots
+        index=0  # default is pole position
+    )
 
 # Weather configuration
 st.sidebar.subheader("Weather Conditions")
