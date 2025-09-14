@@ -5,8 +5,8 @@ import pandas as pd
 fastf1.Cache.enable_cache("data/cache")  # creates local cache
 
 
-def load_session(year=2024, gp="Monaco", session="R"):
-    ses = fastf1.get_session(year, gp, session)  # "FP1","Q","R"
+def load_session(year, gp, session):
+    ses = fastf1.get_session(year, gp, session)
     ses.load(telemetry=True, laps=True, weather=True)
     return ses
 

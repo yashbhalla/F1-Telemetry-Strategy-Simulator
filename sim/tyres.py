@@ -60,7 +60,9 @@ class TyreModel:
         optimal_temps = {
             "SOFT": 30.0,
             "MED": 25.0,
-            "HARD": 20.0
+            "HARD": 20.0,
+            "INTER": 22.0,
+            "WET": 18.0
         }
 
         optimal = optimal_temps.get(compound, 25.0)
@@ -68,9 +70,11 @@ class TyreModel:
 
         # Temperature sensitivity (seconds per degree)
         sensitivity = {
-            "SOFT": 0.02,  # Most sensitive
+            "SOFT": 0.02,
             "MED": 0.015,
-            "HARD": 0.01   # Least sensitive
+            "HARD": 0.01,
+            "INTER": 0.008,
+            "WET": 0.005
         }
 
         sens = sensitivity.get(compound, 0.015)
@@ -114,5 +118,19 @@ def get_default_tire_params():
             "cliff_at": 999,
             "cliff_penalty": 0.0,
             "max_life": 50
+        },
+        "INTER": {
+            "base": 85.0,
+            "k": 0.04,
+            "cliff_at": 40,
+            "cliff_penalty": 0.10,
+            "max_life": 50
+        },
+        "WET": {
+            "base": 90.0,
+            "k": 0.03,
+            "cliff_at": 60,
+            "cliff_penalty": 0.05,
+            "max_life": 60
         }
     }

@@ -42,7 +42,6 @@ RACES_BY_YEAR = {
     ],
 }
 
-
 # Page configuration
 st.set_page_config(
     page_title="F1 Strategy Simulator",
@@ -72,8 +71,8 @@ start_position = None
 if ses == "Race":
     start_position = st.sidebar.selectbox(
         "Start Grid Position",
-        list(range(1, 21)),  # 1–20 grid slots
-        index=0  # default is pole position
+        list(range(1, 21)),
+        index=0
     )
 
 # Weather configuration
@@ -126,7 +125,8 @@ if st.button("🚀 Load Session & Optimize Strategy", type="primary"):
             # Strategy optimization
             with st.spinner("Optimizing strategy..."):
                 best_time, best_plan = brute_force_best(
-                    session.total_laps, "SOFT", ["MED", "HARD"], tm
+                    session.total_laps, "SOFT", [
+                        "MED", "HARD", "INTER", "WET"], tm
                 )
 
             # Display results
@@ -146,7 +146,7 @@ if st.button("🚀 Load Session & Optimize Strategy", type="primary"):
             if best_plan:
                 strategy_text = f"Start: SOFT"
                 for i, (lap, compound) in enumerate(best_plan):
-                    strategy_text += f" → Pit Lap {lap}: {compound}"
+                    strategy_text += f" → Pit Lap {lap}: {compound} "
                 st.write(strategy_text)
 
                 # Detailed simulation
