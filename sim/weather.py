@@ -90,7 +90,7 @@ class WeatherModel:
             else:
                 return "HARD"  # Cool track favors hard tires
         elif rain_intensity in ["LIGHT_RAIN", "MODERATE_RAIN"]:
-            return "INTERMEDIATE"
+            return "INTER"
         else:  # HEAVY_RAIN
             return "WET"
 
@@ -102,7 +102,7 @@ class WeatherModel:
         Returns:
             Multiplier (1.0 = normal performance, >1.0 = slower, <1.0 = faster)
         """
-        if tire_compound in ["SOFT", "MED", "HARD"]:
+        if tire_compound in ["SOFT", "MED", "HARD", "INTER", "WET"]:
             # Dry tires get slower in wet conditions
             if rain_intensity == "DRY":
                 return 1.0
@@ -162,28 +162,49 @@ class WeatherModel:
     def _simulate_weather_change(self, current_conditions: Dict) -> Dict:
         """Simulate gradual weather changes during the race."""
         new_conditions = current_conditions.copy()
-
-        # Temperature changes (±2°C per change)
-        temp_change = np.random.normal(0, 1.0)
-        new_conditions["air_temp"] = max(15, min(40,
-                                                 new_conditions["air_temp"] + temp_change))
-
-        # Humidity changes (±5% per change)
-        humidity_change = np.random.normal(0, 3.0)
-        new_conditions["humidity"] = max(20, min(90,
-                                                 new_conditions["humidity"] + humidity_change))
-
-        # Precipitation changes (can increase or decrease)
-        precip_change = np.random.normal(0, 0.1)
-        new_conditions["precipitation"] = max(0,
-                                              new_conditions["precipitation"] + precip_change)
-
-        # Cloud cover changes
-        cloud_change = np.random.normal(0, 5.0)
-        new_conditions["cloud_cover"] = max(0, min(100,
-                                                   new_conditions["cloud_cover"] + cloud_change))
-
+        new_conditions["air_temp"] = max(
+            15, min(40, new_conditions["air_temp"] + np.random.normal(0, 1.0)))
+        new_conditions["humidity"] = max(
+            20, min(90, new_conditions["humidity"] + np.random.normal(0, 3.0)))
+        new_conditions["precipitation"] = max(
+            0, new_conditions["precipitation"] + np.random.normal(0, 0.1))
+        new_conditions["cloud_cover"] = max(
+            0, min(100, new_conditions["cloud_cover"] + np.random.normal(0, 5.0)))
         return new_conditions
+
+
+def detect_wet_periods(weather_forecast: List[Dict]) -> List[Dict]:
+    """
+    Detect continuous wet weather periods (>=5 laps).
+
+    Args:
+        weather_forecast: List of weather per lap
+
+    Returns:
+        List of dicts: {start, end, laps, intensity}
+    """
+    wet_periods = []
+    current = None
+
+    for entry in weather_forecast:
+        lap = entry["lap"]
+        intensity = entry["rain_intensity"]
+
+        if intensity in ["LIGHT_RAIN", "MODERATE_RAIN", "HEAVY_RAIN"]:
+            if current is None:
+                current = {"start": lap, "count": 0, "intensity": intensity}
+            current["count"] += 1
+        else:
+            if current and current["count"] >= 5:
+                current["end"] = lap - 1
+                wet_periods.append(current)
+            current = None
+
+    if current and current["count"] >= 5:
+        current["end"] = weather_forecast[-1]["lap"]
+        wet_periods.append(current)
+
+    return wet_periods
 
 
 def get_default_weather_conditions() -> Dict:

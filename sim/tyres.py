@@ -120,17 +120,17 @@ def get_default_tire_params():
             "max_life": 50
         },
         "INTER": {
-            "base": 85.0,
-            "k": 0.04,
-            "cliff_at": 40,
-            "cliff_penalty": 0.10,
-            "max_life": 50
+            "base": 78.5,
+            "k": 0.08,
+            "cliff_at": 30,
+            "cliff_penalty": 0.25,
+            "max_life": 40
         },
         "WET": {
-            "base": 90.0,
-            "k": 0.03,
-            "cliff_at": 60,
-            "cliff_penalty": 0.05,
-            "max_life": 60
+            "base": 81.0,
+            "k": 0.10,
+            "cliff_at": 25,
+            "cliff_penalty": 0.40,
+            "max_life": 35
         }
     }

@@ -1,8 +1,7 @@
 from .tyres import TyreModel
 
 
-def simulate_plan(race_laps, start_compound, pit_plan, tyre_model,
-                  pit_loss=20.0, weather_forecast=None):
+def simulate_plan(race_laps, start_compound, pit_plan, tyre_model, pit_loss=20.0, weather_forecast=None):
     stints = []
     current_lap = 1
     current_compound = start_compound
