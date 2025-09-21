@@ -1,0 +1,41 @@
+name: F1 Project CI
+
+# This workflow runs on pushes to main/develop and PRs targeting them
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checks out your repository code so the job can access it
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Sets up the specific version of Python your project needs
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Step 3: Installs your project's dependencies from requirements.txt
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r infra/requirements.txt
+
+      # Step 4: Run tests (you will need to add a test suite for this)
+      # For example, using pytest
+      - name: Run Tests
+        run: |
+          # pip install pytest
+          # pytest
+          echo "Add your test command here in the future"
