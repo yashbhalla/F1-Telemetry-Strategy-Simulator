@@ -27,8 +27,7 @@ class WeatherModel:
             }
         }
 
-    def get_track_temperature(self, air_temp: float, humidity: float,
-                              cloud_cover: float, time_of_day: str = "afternoon") -> float:
+    def get_track_temperature(self, air_temp: float, humidity: float, cloud_cover: float, time_of_day: str = "afternoon") -> float:
         # Base track temp is typically 10-15°C higher than air temp
         base_track_temp = air_temp + 12.0
 
@@ -90,16 +89,6 @@ class WeatherModel:
 
     def simulate_weather_forecast(self, race_laps: int,
                                   initial_conditions: Dict) -> List[Dict]:
-        """
-        Simulate weather changes during the race.
-
-        Args:
-            race_laps: Total number of race laps
-            initial_conditions: Starting weather conditions
-
-        Returns:
-            List of weather conditions for each lap
-        """
         forecast = []
         current_conditions = initial_conditions.copy()
 
@@ -132,7 +121,6 @@ class WeatherModel:
         return forecast
 
     def _simulate_weather_change(self, current_conditions: Dict) -> Dict:
-        """Simulate gradual weather changes during the race."""
         new_conditions = current_conditions.copy()
         new_conditions["air_temp"] = max(
             15, min(40, new_conditions["air_temp"] + np.random.normal(0, 1.0)))
@@ -146,15 +134,6 @@ class WeatherModel:
 
 
 def detect_wet_periods(weather_forecast: List[Dict]) -> List[Dict]:
-    """
-    Detect continuous wet weather periods (>=5 laps).
-
-    Args:
-        weather_forecast: List of weather per lap
-
-    Returns:
-        List of dicts: {start, end, laps, intensity}
-    """
     wet_periods = []
     current = None
 
@@ -180,7 +159,6 @@ def detect_wet_periods(weather_forecast: List[Dict]) -> List[Dict]:
 
 
 def get_default_weather_conditions() -> Dict:
-    """Get typical weather conditions for F1 race."""
     return {
         "air_temp": 25.0,      # Celsius
         "humidity": 60.0,      # Percentage
