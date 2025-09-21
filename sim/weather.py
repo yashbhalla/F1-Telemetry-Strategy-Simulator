@@ -3,8 +3,6 @@ from typing import Dict, List, Tuple
 
 
 class WeatherModel:
-    """Model weather effects on F1 race strategy."""
-
     def __init__(self):
         self.rain_intensity_levels = {
             "DRY": 0.0,
@@ -31,15 +29,6 @@ class WeatherModel:
 
     def get_track_temperature(self, air_temp: float, humidity: float,
                               cloud_cover: float, time_of_day: str = "afternoon") -> float:
-        """
-        Calculate track temperature based on weather conditions.
-
-        Args:
-            air_temp: Air temperature in Celsius
-            humidity: Humidity percentage (0-100)
-            cloud_cover: Cloud cover percentage (0-100)
-            time_of_day: "morning", "afternoon", "evening"
-        """
         # Base track temp is typically 10-15°C higher than air temp
         base_track_temp = air_temp + 12.0
 
@@ -61,7 +50,6 @@ class WeatherModel:
         return max(track_temp, 15.0)  # Minimum track temp
 
     def get_rain_intensity(self, precipitation: float) -> str:
-        """Convert precipitation value to rain intensity level."""
         if precipitation < 0.1:
             return "DRY"
         elif precipitation < 0.5:
@@ -72,16 +60,6 @@ class WeatherModel:
             return "HEAVY_RAIN"
 
     def get_optimal_tire_compound(self, rain_intensity: str, track_temp: float) -> str:
-        """
-        Determine optimal tire compound based on weather conditions.
-
-        Args:
-            rain_intensity: Rain intensity level
-            track_temp: Track temperature in Celsius
-
-        Returns:
-            Recommended tire compound
-        """
         if rain_intensity == "DRY":
             if track_temp > 35:
                 return "SOFT"  # Hot track favors soft tires
@@ -96,12 +74,6 @@ class WeatherModel:
 
     def get_tire_performance_multiplier(self, tire_compound: str,
                                         rain_intensity: str) -> float:
-        """
-        Get performance multiplier for tire compound in given conditions.
-
-        Returns:
-            Multiplier (1.0 = normal performance, >1.0 = slower, <1.0 = faster)
-        """
         if tire_compound in ["SOFT", "MED", "HARD", "INTER", "WET"]:
             # Dry tires get slower in wet conditions
             if rain_intensity == "DRY":
