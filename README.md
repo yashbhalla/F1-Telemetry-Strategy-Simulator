@@ -87,33 +87,6 @@ docker-compose up --build
 # Access the application at http://localhost:8501
 ```
 
-## 📁 Project Structure
-
-```
-F1-Telemetry-Strategy-Simulator/
-├── app/                    # Streamlit web application
-│   └── Home.py            # Main dashboard
-├── sim/                   # Simulation engine
-│   ├── tyres.py          # Tire degradation models
-│   ├── strategy.py       # Strategy simulation
-│   ├── optimiser.py      # Strategy optimization
-│   ├── weather.py        # Weather modeling
-│   └── sc_models.py      # Safety car modeling
-├── telemetry/            # F1 data handling
-│   ├── ingest.py         # Data loading
-│   ├── features.py       # Feature extraction
-│   └── plots.py          # Visualization utilities
-├── db/                   # Database layer
-│   ├── schema.sql        # Database schema
-│   └── database.py       # Database operations
-├── notebooks/            # Jupyter notebooks for analysis
-├── infra/               # Infrastructure and deployment
-│   ├── Dockerfile       # Container configuration
-│   ├── docker-compose.yml
-│   └── requirements.txt
-└── data/                # Cached F1 data
-```
-
 ## 🎮 Usage
 
 ### Basic Strategy Analysis
